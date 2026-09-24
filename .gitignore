@@ -8,3 +8,8 @@ node_modules/
 /playwright/.auth/
 
 /*.env
+# agent
+/plans/
+/practices/
+/prompt_templates/
+/*.agent
