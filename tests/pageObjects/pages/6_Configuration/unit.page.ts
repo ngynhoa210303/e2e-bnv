@@ -66,7 +66,7 @@ export default class UnitPage extends BasePage {
   }
   async selectNode(nodeName: string): Promise<void> {
     const selectedParent = this.page.locator(
-      `//li[@aria-label='${nodeName}']//div[2]`
+      `//li//div[text()='${nodeName}']`
     );
 
     await selectedParent.click();

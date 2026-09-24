@@ -7,17 +7,17 @@ Feature: Quản lý đơn vị - Thêm mới đơn vị
   @unit @smoke @parent1
   Scenario: Đảm bảo cây đơn vị tồn tại đầy đủ theo quan hệ cha con
     Given the following unit hierarchy exists:
-      | unitName           | unitCode | unitLevel            | unitType          | parentUnit         | unitClassifyType | termOfOffice         |
-      | Tỉnh Autotest A    | ATo001   | Bộ Nội Vụ            | Đơn vị hành chính | Chính phủ          | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
-      | HĐND Autotest B    | ATo002   | HĐND Tỉnh            | Đơn vị hành chính | Tỉnh Autotest A    | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
-      | HĐND Xã Autotest C | ATo003   | Đơn vị thuộc HĐND Xã | Đơn vị hành chính | HĐND Autotest B    | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
-      | Ban Autotest D     | ATo004   | Đơn vị thuộc HĐND Xã | Đơn vị hành chính | HĐND Xã Autotest C | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
+      | unitName            | unitCode | unitLevel            | unitType          | parentUnit          | unitClassifyType | termOfOffice         |
+      | Tỉnh Autotest A1    | ATo001   | Bộ Nội Vụ            | Đơn vị hành chính | Chính phủ           | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
+      | HĐND Autotest B1    | ATo002   | HĐND Tỉnh            | Đơn vị hành chính | Tỉnh Autotest A1    | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
+      | HĐND Xã Autotest C1 | ATo003   | Đơn vị thuộc HĐND Xã | Đơn vị hành chính | HĐND Autotest B1    | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
+      | Ban Autotest D1     | ATo004   | Đơn vị thuộc HĐND Xã | Đơn vị hành chính | HĐND Xã Autotest C1 | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
     Then all units should exist with the correct parent relationships
-      | unitName           | unitCode | unitLevel            | unitType          | parentUnit         | unitClassifyType | termOfOffice         |
-      | Tỉnh Autotest A    | ATo001   | Bộ Nội Vụ            | Đơn vị hành chính | Chính phủ          | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
-      | HĐND Autotest B    | ATo002   | HĐND Tỉnh            | Đơn vị hành chính | Tỉnh Autotest A    | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
-      | HĐND Xã Autotest C | ATo003   | Đơn vị thuộc HĐND Xã | Đơn vị hành chính | HĐND Autotest B    | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
-      | Ban Autotest D     | ATo004   | Đơn vị thuộc HĐND Xã | Đơn vị hành chính | HĐND Xã Autotest C | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
+      | unitName            | unitCode | unitLevel            | unitType          | parentUnit          | unitClassifyType | termOfOffice         |
+      | Tỉnh Autotest A1    | ATo001   | Bộ Nội Vụ            | Đơn vị hành chính | Chính phủ           | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
+      | HĐND Autotest B1    | ATo002   | HĐND Tỉnh            | Đơn vị hành chính | Tỉnh Autotest A1    | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
+      | HĐND Xã Autotest C1 | ATo003   | Đơn vị thuộc HĐND Xã | Đơn vị hành chính | HĐND Autotest B1    | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
+      | Ban Autotest D1     | ATo004   | Đơn vị thuộc HĐND Xã | Đơn vị hành chính | HĐND Xã Autotest C1 | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
 
   @unit @smoke @positive
   Scenario: Thêm mới đơn vị là cấp con trực tiếp của "<parentUnit>" thành công với đầy đủ thông tin hợp lệ

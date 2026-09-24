@@ -52,3 +52,22 @@ export async function getUnitParentCode(
 
   return result.rows[0]?.parent_code ?? null;
 }
+export async function deleteUnitsByCodes(
+  unitCodes: string[]
+): Promise<void> {
+  for (let i = unitCodes.length - 1; i >= 0; i--) {
+    const unitCode = unitCodes[i];
+
+    await db.query(
+      `
+      DELETE FROM public.don_vi
+      WHERE ma_don_vi = $1
+      `,
+      [unitCode]
+    );
+
+    console.log(
+      `[DB CLEANUP] Deleted all records with unitCode: ${unitCode}`
+    );
+  }
+}
