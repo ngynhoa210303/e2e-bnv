@@ -11,7 +11,10 @@ export default class LoginPage extends BasePage {
   readonly txt_searchDatabase = this.page.getByRole('textbox', { name: 'Tìm kiếm' });
 
   readonly err_incorrectLogin = this.page.locator(
-    "//small[text()='Thông tin đăng nhập chưa đúng']"
+    "//small[@class='error-text']"
+  );
+  readonly toast_incorrectLogin = this.page.locator(
+    "//div[@role='alert']//span[contains(@class,'p-toast-summary')]"
   );
 
   async login(email: string, password: string) {
@@ -23,7 +26,7 @@ export default class LoginPage extends BasePage {
   }
 
   async open() {
-    await super.open('/login');
+    await super.open('/login/');
   }
 
   async selectDatabase(database: string) {
@@ -31,4 +34,5 @@ export default class LoginPage extends BasePage {
     await this.txt_searchDatabase.fill(database);
     await this.page.getByRole('option', { name: database, exact: true }).click();
   }
+
 }

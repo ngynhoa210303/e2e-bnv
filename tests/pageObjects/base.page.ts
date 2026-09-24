@@ -1,28 +1,25 @@
-import { Locator, type Page } from '@playwright/test';
+import { type Page } from '@playwright/test';
 import NavBar from './components/navBar';
 import AllowCookiesPopup from './components/allowCookiesPopup';
 import Filter from './components/filter';
-import Search from './components/search';
-import dotenv from 'dotenv';
 import ChangePassword from './components/changePasswordPopup';
+import dotenv from 'dotenv';
+
 dotenv.config();
 
-
 export abstract class BasePage {
-  public navBar: NavBar;
-  public cookiePopup: AllowCookiesPopup;
-  public filter: Filter;
-  public search: Search;
-  public changePassword: ChangePassword;
   public baseUrl = process.env.BASE_URL || 'https://bonoivu-test.elcomlab.com';
 
-  constructor(readonly page: Page) {
-    this.navBar = new NavBar(this.page);
-    this.cookiePopup = new AllowCookiesPopup(this.page);
-    this.filter = new Filter(this.page);
-    this.search = new Search(this.page);
-    this.changePassword = new ChangePassword(this.page);
+  constructor(public readonly page: Page) { }
+
+  get toast_message() {
+    return this.page.locator("//div[@role='alert']//span[contains(@class,'p-toast-summary')]");
   }
+
+  get navBar() { return new NavBar(this.page); }
+  get cookiePopup() { return new AllowCookiesPopup(this.page); }
+  get filter() { return new Filter(this.page); }
+  get changePassword() { return new ChangePassword(this.page); }
 
   async open(path: string) {
     await this.page.goto(this.baseUrl + path, { waitUntil: 'domcontentloaded' });
@@ -31,9 +28,13 @@ export abstract class BasePage {
   async close() {
     await this.page.close();
   }
+  readonly getFieldByLabel = (label: string) =>
+    this.page.locator(
+      `(//div[contains(.,'${label}')]/following-sibling::div)[1]//input`
+    );
 
   async waitForPageLoad() {
-    await this.page.waitForLoadState('networkidle') 
+    await this.page.waitForLoadState('networkidle');
   }
 
   async pause_test() {
@@ -41,6 +42,9 @@ export abstract class BasePage {
   }
 
   async reload_page() {
-    await this.page.reload({waitUntil: 'domcontentloaded'})
+    await this.page.reload({ waitUntil: 'domcontentloaded' });
+  }
+  async clickButton(buttonName: string) {
+    await this.page.locator(`[aria-label="${buttonName}"]`).click();
   }
 }

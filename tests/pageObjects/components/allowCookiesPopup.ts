@@ -1,5 +1,4 @@
-import { BasePageComponent } from '../base.pageComponent';
-const commons = require('../../common/commons');
+import { BasePageComponent } from '../base.pageComponent'
 
 export default class AllowCookiesPopup extends BasePageComponent {
   readonly btn_allowAll = this.page.locator('#CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll');

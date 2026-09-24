@@ -30,7 +30,7 @@ export default class Filter extends BasePageComponent {
       await tag_locator.click()
       await this.page.waitForLoadState("domcontentloaded")
       let [no_result_display] = await commons.waitForLocator([no_result_xpath], 10000)
-      
+
       if (no_result_display === 0) {
         await tag_locator.click()
       }

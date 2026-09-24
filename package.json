@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test:e2e": "playwright test",
-    "test:cucumber": "cucumber-js"
+    "test:cucumber": "npx bddgen && playwright test",
+    "report": "playwright show-report",
+    "test:serial": "playwright test --project=serial --workers=1 --pass-with-no-tests",
+    "test:parallel": "playwright test --project=parallel --workers=4 --pass-with-no-tests",
+    "test:all": "npx bddgen && npm run test:serial && npm run test:parallel"
   },
   "keywords": [],
   "author": "",
@@ -15,11 +19,15 @@
     "@cucumber/cucumber": "^13.2.1",
     "@playwright/test": "^1.62.1",
     "@types/node": "^25.5.0",
+    "@types/pg": "^8.23.1",
+    "playwright-bdd": "^9.2.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@faker-js/faker": "^10.6.0",
     "dotenv": "^17.3.1",
+    "pg": "^8.23.0",
     "playwright": "^1.62.1"
   }
 }

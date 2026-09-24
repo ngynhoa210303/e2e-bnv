@@ -1,4 +1,4 @@
-import { BasePage } from '../base.page';
+import { BasePage } from '../../base.page';
 
 export default class HomePage extends BasePage {
   readonly menu = this.page.locator("//*[contains(@class, 'Header___StyledMenu')]");
