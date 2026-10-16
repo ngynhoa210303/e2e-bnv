@@ -2,26 +2,32 @@ Feature: Quản lý đơn vị - Thêm mới đơn vị
 
   Background:
     Given user is logged in as admin
-    And user is on the "Quản lý đơn vị" page
 
-  @unit @smoke @parent1
+  @unit @smoke @parentUnit
   Scenario: Đảm bảo cây đơn vị tồn tại đầy đủ theo quan hệ cha con
     Given the following unit hierarchy exists:
-      | unitName            | unitCode | unitLevel            | unitType          | parentUnit          | unitClassifyType | termOfOffice         |
-      | Tỉnh Autotest A1    | ATo001   | Bộ Nội Vụ            | Đơn vị hành chính | Chính phủ           | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
-      | HĐND Autotest B1    | ATo002   | HĐND Tỉnh            | Đơn vị hành chính | Tỉnh Autotest A1    | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
-      | HĐND Xã Autotest C1 | ATo003   | Đơn vị thuộc HĐND Xã | Đơn vị hành chính | HĐND Autotest B1    | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
-      | Ban Autotest D1     | ATo004   | Đơn vị thuộc HĐND Xã | Đơn vị hành chính | HĐND Xã Autotest C1 | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
+      | unitName                                           | unitCode | unitLevel            | unitType          | parentUnit                                         | unitClassifyType | termOfOffice         |
+      | Tỉnh Autotest [1]                                  | ATo001   | Bộ Nội Vụ            | Đơn vị hành chính | Chính phủ                                          | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
+      | HĐND Autotest [3]                                  | ATo002   | HĐND Tỉnh            | Đơn vị hành chính | Tỉnh Autotest [1]                                  | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
+      | Danh sách HĐND Phường/Xã thuộc tỉnh Autotest [3_1] | ATo003   |                      | Đơn vị hành chính | HĐND Autotest [3]                                  | Là nhóm          | Nhiệm kỳ 2031 - 2036 |
+      | HĐND Phường Autotest [3.1]                         | ATo004   | Đơn vị thuộc HĐND Xã | Đơn vị hành chính | Danh sách HĐND Phường/Xã thuộc tỉnh Autotest [3_1] | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
+      | UBND Autotest [2]                                  | ATo005   | UBND Tỉnh            | Đơn vị hành chính | Tỉnh Autotest [1]                                  | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
+      | Danh sách UBND Phường/Xã thuộc tỉnh Autotest [2_1] | ATo006   |                      | Đơn vị hành chính | UBND Autotest [2]                                  | Là nhóm          | Nhiệm kỳ 2031 - 2036 |
+      | UBND Phường Autotest [2.1]                         | ATo007   | Đơn vị thuộc UBND Xã | Đơn vị hành chính | Danh sách UBND Phường/Xã thuộc tỉnh Autotest [2_1] | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
     Then all units should exist with the correct parent relationships
-      | unitName            | unitCode | unitLevel            | unitType          | parentUnit          | unitClassifyType | termOfOffice         |
-      | Tỉnh Autotest A1    | ATo001   | Bộ Nội Vụ            | Đơn vị hành chính | Chính phủ           | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
-      | HĐND Autotest B1    | ATo002   | HĐND Tỉnh            | Đơn vị hành chính | Tỉnh Autotest A1    | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
-      | HĐND Xã Autotest C1 | ATo003   | Đơn vị thuộc HĐND Xã | Đơn vị hành chính | HĐND Autotest B1    | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
-      | Ban Autotest D1     | ATo004   | Đơn vị thuộc HĐND Xã | Đơn vị hành chính | HĐND Xã Autotest C1 | Là đơn vị        | Nhiệm kỳ 2031 - 2036 |
+      | unitCode |
+      | ATo001   |
+      | ATo002   |
+      | ATo003   |
+      | ATo004   |
+      | ATo005   |
+      | ATo006   |
+      | ATo007   |
 
-  @unit @smoke @positive
+  @unit @smoke @positive @addUnit
   Scenario: Thêm mới đơn vị là cấp con trực tiếp của "<parentUnit>" thành công với đầy đủ thông tin hợp lệ
     Given unit with code "<unitCode>" does not already exist
+    And user is on the "Quản lý đơn vị" page
     And user clicks the "Thêm đơn vị" button
     And user enters unit name "<unitName>"
     And user enters unit code "<unitCode>"
@@ -39,13 +45,14 @@ Feature: Quản lý đơn vị - Thêm mới đơn vị
     And the new unit "<unitName>" should appear in the unit list
 
     Examples:
-      | unitName        | unitCode | unitLevel | unitType          | parentUnit | unitClassifyType | termOfOffice         | administrativeBoundaryName | administrativeBoundaryCode | administrativeBoundaryProvinceCity | administrativeBoundaryCommuneWardSpecialZone |
-      | Tỉnh Autotest 2 | AT002    | Bộ Nội Vụ | Đơn vị hành chính | Chính phủ  | Là đơn vị        | Nhiệm kỳ 2031 - 2036 | DGHC Autotest              | DGHC Autotest              | Thành phố Hà Nội                   | Phường Ngọc Hà                               |
+      | unitName          | unitCode | unitLevel | unitType          | parentUnit | unitClassifyType | termOfOffice         | administrativeBoundaryName | administrativeBoundaryCode | administrativeBoundaryProvinceCity | administrativeBoundaryCommuneWardSpecialZone |
+      | Tỉnh Autotest n+1 | AT0044   | Bộ Nội Vụ | Đơn vị hành chính | Chính phủ  | Là đơn vị        | Nhiệm kỳ 2031 - 2036 | DGHC Autotest              | DGHC Autotest              | Thành phố Hà Nội                   | Phường Ngọc Hà                               |
 #   # ===== NEGATIVE CASES - Validation =====
 
   @unit @negative @validation
   Scenario Outline: Để trống từng trường bắt buộc
-    Given user clicks the "Thêm đơn vị" button
+    Given user is on the "Quản lý đơn vị" page
+    And user clicks the "Thêm đơn vị" button
     And user enters unit code "<unitCode>"
     And user enters unit name "<unitName>"
     And user selects unit type "<unitType>"
@@ -89,7 +96,8 @@ Feature: Quản lý đơn vị - Thêm mới đơn vị
 
   @unit @edge-case @test
   Scenario Outline: Tên/mã đơn vị chứa ký tự vượt giới hạn
-    Given user clicks the "Thêm đơn vị" button
+    Given user is on the "Quản lý đơn vị" page
+    And user clicks the "Thêm đơn vị" button
     When user enters random unit data
     And user clicks the Save button
     Then user should see an error message "Không quá 100 ký tự" below the text field "Mã đơn vị"
@@ -98,7 +106,8 @@ Feature: Quản lý đơn vị - Thêm mới đơn vị
 
   @unit @negative
   Scenario: Hủy Thêm đơn vị
-    Given user clicks the "Thêm đơn vị" button
+    Given user is on the "Quản lý đơn vị" page
+    And user clicks the "Thêm đơn vị" button
     When user enters unit name "<unitName>"
     And user enters unit code "<unitCode>"
     And user clicks the Cancel button

@@ -22,16 +22,24 @@ export async function isUnitExists(unitCode: string): Promise<boolean> {
   );
   return Number(result.rows[0].count) > 0;
 }
-export async function getExistingUnitCodes(unitCodes: string[]): Promise<string[]> {
+export async function getExistingUnitCodes(
+  unitCodes: string[]
+): Promise<string[]> {
+  if (unitCodes.length === 0) {
+    return [];
+  }
+
   const result = await db.query(
-    `SELECT ma_don_vi
-     FROM public.don_vi
-     WHERE ma_don_vi = ANY($1)
-       AND is_deleted = false`,
+    `
+    SELECT ma_don_vi
+    FROM public.don_vi
+    WHERE ma_don_vi = ANY($1)
+      AND is_deleted = false
+    `,
     [unitCodes]
   );
 
-  return result.rows.map(row => row.ma_don_vi);
+  return result.rows.map((row) => row.ma_don_vi);
 }
 export async function getUnitParentCode(
   unitCode: string
@@ -67,7 +75,7 @@ export async function deleteUnitsByCodes(
     );
 
     console.log(
-      `[DB CLEANUP] Deleted all records with unitCode: ${unitCode}`
+      `[DB CLEANUP] Deleted records with unitCode: ${unitCode}`
     );
   }
 }

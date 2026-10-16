@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { Given, Then, When } from '../../fixtures/fixtures';
+import { Given, Then, When, After } from '../../fixtures/fixtures';
 import { countUnits } from '../../db/queries/unit.query';
 import { isUnitExists } from '../../db/queries/unit.query';
 import { getExistingUnitCodes } from '../../db/queries/unit.query';
@@ -8,6 +8,7 @@ import { deleteUnitsByCodes } from '../../db/queries/unit.query';
 const username = process.env.USERNAME_ADMIN;
 const password = process.env.PASSWORD_ADMIN;
 const cqdb_db = "Chính quyền địa phương";
+const tcbmhb_db = "Tổ chức , Bộ máy";
 
 Given('user is logged in as admin', async ({ app, page }) => {
   await app.loginPage.open();
@@ -18,9 +19,35 @@ Given('user is logged in as admin', async ({ app, page }) => {
   await page.waitForURL('**/trang-chu/');
 });
 
+Given('user is logged in as admin tcbmhb', async ({ app, page }) => {
+  await app.loginPage.open();
+  await app.loginPage.txt_username.fill('hieubt');
+  await app.loginPage.txt_password.fill('Pass123$');
+  await app.loginPage.selectDatabase(tcbmhb_db);
+  await app.loginPage.btn_login.click();
+  await page.waitForURL('**/trang-chu/');
+});
+
 Given('user is on the {string} page', async ({ app, page }, pageName: string) => {
   if (pageName === "Quản lý đơn vị") {
     await app.unitPage.open();
+    await page.reload();
+    const selectedParent = page.locator(
+      "//div[text()='Chính phủ']//parent::div[@data-p-highlight='true']"
+    );
+    await expect(selectedParent).toBeVisible();
+  }
+  if (pageName === "Quản lý vai trò") {
+    await app.unitPage.openRoleTCBM();
+    await page.reload();
+    await expect(app.unitPage.page.locator("//a[normalize-space()='/ Vai trò']")).toBeVisible();
+  }
+});
+
+Given('user is on the {string} page in tcbmhb', async ({ app, page }, pageName: string) => {
+  if (pageName === "Quản lý đơn vị") {
+    await app.unitPage.openUnitTCBM();
+    await page.reload();
   }
   const selectedParent = page.locator(
     "//div[text()='Chính phủ']//parent::div[@data-p-highlight='true']"
@@ -58,6 +85,12 @@ Given(
     // Đã tồn tại → không cần tạo
     if (count == 1) {
       console.log(`Unit "${unitCode}" đã tồn tại, bỏ qua bước setup.`);
+      await app.unitPage.open();
+      await app.unitPage.page.reload();
+      const selectedParent = app.unitPage.page.locator(
+        "//div[text()='Chính phủ']//parent::div[@data-p-highlight='true']"
+      );
+      await expect(selectedParent).toBeVisible();
       return;
     }
     console.log(`Unit "${unitCode}" chưa tồn tại, tiến hành tạo setup data.`);
@@ -74,7 +107,12 @@ Given(
       administrativeBoundaryProvinceCity: 'Thành phố Hà Nội',
       administrativeBoundaryCommuneWardSpecialZone: 'Phường Ngọc Hà',
     };
-
+    await app.unitPage.open();
+    await app.unitPage.page.reload();
+    const selectedParent = app.unitPage.page.locator(
+      "//div[text()='Chính phủ']//parent::div[@data-p-highlight='true']"
+    );
+    await expect(selectedParent).toBeVisible();
     await app.unitPage.clickButton("Thêm đơn vị");
     await app.unitPage.addUnitPopup.fillUnitForm(unitData);
     await app.unitPage.unitForm.btn_yes.click();
@@ -94,8 +132,9 @@ When('user enters unit name {string}', async ({ app }, name: string) => {
   await app.unitPage.unitForm.txt_unitInformation_name.fill(name);
   await app.unitPage.unitForm.txt_unitInformation_name.blur();
 });
-
+let unitCode: string;
 When('user enters unit code {string}', async ({ app }, code: string) => {
+  unitCode = code
   await app.unitPage.unitForm.txt_unitInformation_unitCode.fill(code);
   await app.unitPage.unitForm.txt_unitInformation_unitCode.blur();
 });
@@ -213,15 +252,7 @@ Given(
     const unitCodes = units.map(
       (unit: { unitCode: string }) => unit.unitCode
     );
-
-    // =====================================================
-    // 1. CHECK DATA CŨ
-    // =====================================================
     const existingCodes = await getExistingUnitCodes(unitCodes);
-
-    // =====================================================
-    // 2. NẾU CÓ DATA CŨ -> XÓA TỪ CON -> CHA
-    // =====================================================
     if (existingCodes.length > 0) {
       console.log(
         "[CLEANUP] Found existing units -> delete from child to parent"
@@ -233,11 +264,7 @@ Given(
         if (!existingCodes.includes(unitCode)) {
           continue;
         }
-
-        console.log(`[CLEANUP] Delete ${unitCode}`);
-
         await deleteUnitsByCodes([unitCode]);
-
         await expect
           .poll(() => countUnits(unitCode), {
             timeout: 10000,
@@ -246,63 +273,73 @@ Given(
           .toBe(0);
       }
     }
+    await expect
+      .poll(
+        async () => {
+          const counts = await Promise.all(
+            existingCodes.map((unitCode) => countUnits(unitCode))
+          );
+          return counts.every((count) => count === 0);
+        },
+        {
+          timeout: 10000,
+          message: `Vẫn còn unit chưa được xóa: ${existingCodes.join(', ')}`,
+        }
+      )
+      .toBe(true);
+
+    console.log('[CLEANUP] All units deleted successfully');
+    await app.unitPage.open();
+    await app.homePage.page.reload();
+    const selectedParent = app.homePage.page.locator(
+      "//div[text()='Chính phủ']//parent::div[@data-p-highlight='true']"
+    );
+
+    await expect(selectedParent).toBeVisible();
 
     // =====================================================
     // 3. TẠO LẠI TỪ CHA -> CON
     // =====================================================
     for (let i = 0; i < units.length; i++) {
       const unit = units[i];
-
-      // Unit thứ 2 trở đi:
-      // chọn unit ngay trước đó làm parent
       if (i > 0) {
-        const parentUnit = units[i - 1];
-
-        await app.unitPage.selectIconExpandNode(parentUnit.unitName);
-
-        console.log(
-          `[SETUP] Select parent: ${parentUnit.unitName}`
-        );
-
-        // Từ unit thứ 3 trở đi mới cần expand parent
-        if (i > 1) {
-          await app.unitPage.selectIconExpandNode(
-            parentUnit.unitName
-          );
-        }
+        await app.unitPage.txt_searchUnit.fill(unit.parentUnit);
+        await app.unitPage.page.keyboard.press('Enter');
+        await app.unitPage.selectUnit(unit.parentUnit);
       }
-
-      console.log(
-        `[SETUP] Create ${unit.unitCode} - ${unit.unitName}`
-      );
-
       await app.unitPage.clickButton("Thêm đơn vị");
-
       await app.unitPage.addUnitPopup.fillUnitForm(unit);
-
       await app.unitPage.unitForm.btn_yes.click();
-
+      await expect(app.unitPage.toast_message).toContainText("Thêm dữ liệu thành công");
+      await app.unitPage.close_toast_message.click();
+      await expect(app.unitPage.toast_message).toBeHidden();
       await expect
         .poll(() => countUnits(unit.unitCode), {
           timeout: 10000,
           message: `Unit "${unit.unitCode}" chưa được tạo thành công`,
         })
         .toBe(1);
+
+      console.log(
+        `[SETUP] Create ${unit.unitCode} - ${unit.unitName}`
+      );
     }
   }
 );
+let hierarchyUnits: string[] = [];
 Then(
   'all units should exist with the correct parent relationships',
   async ({ }, dataTable) => {
     const units = dataTable.hashes();
-
+    hierarchyUnits = units.map(
+      (unit: { unitCode: string }) => unit.unitCode
+    );
     for (const unit of units) {
       const exists = await isUnitExists(unit.unitCode);
-
-      // expect(
-      //   exists,
-      //   `Unit ${unit.unitCode} không tồn tại hoặc đã bị xóa`
-      // ).toBe(true);
+      expect(
+        exists,
+        `Unit ${unit.unitCode} không tồn tại hoặc đã bị xóa`
+      ).toBe(true);
     }
   }
 );
@@ -333,3 +370,22 @@ When('user enters random unit data', async function ({ app }) {
   await app.unitPage.unitForm.txt_unitInformation_unitCode.fill(this.unitData.unitCode);
   await app.unitPage.unitForm.txt_unitInformation_name.fill(this.unitData.unitName);
 });
+After(
+  { tags: '@parentUnit' },
+  async function (this: any) {
+    console.log('========== AFTER HOOK RUN ==========');
+    if (hierarchyUnits.length > 0) {
+      await deleteUnitsByCodes(hierarchyUnits);
+    }
+    hierarchyUnits = [];
+  }
+);
+After(
+  { tags: '@addUnit' },
+  async function () {
+    if (unitCode) {
+      await deleteUnitsByCodes([unitCode]);
+      unitCode = '';
+    }
+  }
+);

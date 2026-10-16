@@ -18,9 +18,16 @@ export default class UnitPage extends BasePage {
   readonly txt_administrativeBoundaryInfo_code = this.getFieldByLabel('Mã đơn vị địa giới hành chính');
   readonly txt_administrativeBoundaryInfo_provinceCity = this.getFieldByLabel('Tỉnh/Thành phố');
   readonly txt_administrativeBoundaryInfo_communeWardSpecialZone = this.getFieldByLabel('Xã/Phường/Đặc khu');
+  readonly txt_searchUnit = this.page.locator("//input[@placeholder='Tìm kiếm']");
 
   async open() {
     await super.open('/config/cqdp-category/don-vi');
+  }
+  async openUnitTCBM() {
+    await super.open('/config/tc-bo-may-category/don-vi');
+  }
+  async openRoleTCBM() {
+    await super.open('/config/role-manager/role');
   }
 
   get addUnitPopup() {
@@ -64,11 +71,26 @@ export default class UnitPage extends BasePage {
     const node = this.page.locator(`//li[@aria-label="${nodeName}"]`);
     await node.click();
   }
-  async selectNode(nodeName: string): Promise<void> {
-    const selectedParent = this.page.locator(
-      `//li//div[text()='${nodeName}']`
-    );
 
-    await selectedParent.click();
+  public getUnitNode(unitName: string) {
+    return this.page.locator("div[data-pc-section='content']").filter({
+      has: this.page.locator("div.font-14-400", { hasText: unitName })
+    }).first();
+  }
+
+  async selectUnit(unitName: string) {
+    const unit = this.getUnitNode(unitName);
+
+    if (await unit.getAttribute('data-p-highlight') === 'false') {
+      await unit.click();
+    }
+  }
+
+  async unselectUnit(unitName: string) {
+    const unit = this.getUnitNode(unitName);
+
+    if (await unit.getAttribute('data-p-highlight') === 'true') {
+      await unit.click();
+    }
   }
 }

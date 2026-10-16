@@ -15,6 +15,9 @@ export abstract class BasePage {
   get toast_message() {
     return this.page.locator("//div[@role='alert']//span[contains(@class,'p-toast-summary')]");
   }
+  get close_toast_message() {
+    return this.page.locator("//button[@class='p-toast-icon-close p-link']");
+  }
 
   get navBar() { return new NavBar(this.page); }
   get cookiePopup() { return new AllowCookiesPopup(this.page); }
