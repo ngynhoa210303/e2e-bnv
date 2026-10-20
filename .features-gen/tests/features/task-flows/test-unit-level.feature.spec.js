@@ -1,5 +1,5 @@
-// Generated from: tests\features\6_Configuration\unit-features\test-unit-level.feature
-import { test } from "../../../../../tests/fixtures/fixtures.ts";
+// Generated from: tests\features\task-flows\test-unit-level.feature
+import { test } from "../../../../tests/fixtures/fixtures.ts";
 
 test.describe('Kiểm tra danh sách cấp đơn vị', () => {
 
@@ -21,7 +21,7 @@ test.describe('Kiểm tra danh sách cấp đơn vị', () => {
 
 test.use({
   $test: [({}, use) => use(test), { scope: 'test', box: true }],
-  $uri: [({}, use) => use('tests\\features\\6_Configuration\\unit-features\\test-unit-level.feature'), { scope: 'test', box: true }],
+  $uri: [({}, use) => use('tests\\features\\task-flows\\test-unit-level.feature'), { scope: 'test', box: true }],
   $bddFileData: [({}, use) => use(bddFileData), { scope: "test", box: true }],
 });
 

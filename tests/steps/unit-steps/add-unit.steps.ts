@@ -42,6 +42,9 @@ Given('user is on the {string} page', async ({ app, page }, pageName: string) =>
     await page.reload();
     await expect(app.unitPage.page.locator("//a[normalize-space()='/ Vai trò']")).toBeVisible();
   }
+  if (pageName === "Danh sách chính quyền địa phương") {
+    await app.localGovernmentListPage.open();
+  }
 });
 
 Given('user is on the {string} page in tcbmhb', async ({ app, page }, pageName: string) => {
